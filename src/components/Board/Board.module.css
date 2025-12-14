@@ -1,73 +1,110 @@
-.boardContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  background: radial-gradient(circle at center, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-  min-height: 100vh;
+.scene {
+    width: 100vw;
+    height: 100vh;
+    perspective: 1500px;
+    overflow: hidden;
+    background: radial-gradient(circle at center, var(--bg-primary) 0%, #000 120%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
 }
 
+.scene:active {
+    cursor: grabbing;
+}
+
+.boardContainer {
+    width: var(--board-size);
+    height: var(--board-size);
+    transform-style: preserve-3d; /* Key for 3D children */
+    transition: transform 0.1s linear; /* Smooth drag */
+    /* Add subtle shadow for the whole board 'table' */
+    box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+    background-color: #000; /* Backing */
+}
+
+/* The actual board grid */
 .board {
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  grid-template-rows: repeat(11, 1fr);
-  width: var(--board-size);
-  height: var(--board-size);
-  background: #121212;
-  border: 4px solid var(--accent-gold);
-  box-shadow: 0 0 50px rgba(0,0,0,0.5);
-  position: relative;
+    display: grid;
+    grid-template-columns: repeat(11, 1fr);
+    grid-template-rows: repeat(11, 1fr);
+    width: 100%;
+    height: 100%;
+    background: var(--board-bg); /* Use Mint/Blue from theme */
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;
+    
+    /* 3D Thickness */
+    box-shadow: 
+        1px 1px 0 #bbb,
+        2px 2px 0 #bbb,
+        3px 3px 0 #bbb,
+        4px 4px 0 #bbb,
+        5px 5px 0 #bbb,
+        0 10px 20px rgba(0,0,0,0.3);
 }
 
 .gridCellWrapper {
-  display: contents; /* Let the child be the grid item? No, we need wrapper to supply style. */
-  /* Actually, 'display: contents' causes the child to be the grid item using the style on wrapper? 
-     No, style is on wrapper. Wrapper becomes grid item. 
-  */
+    display: contents; 
 }
 
-/* We need the wrapper to fill the cell */
-.gridCellWrapper > * {
-  width: 100%;
-  height: 100%;
-}
-
+/* Center Board area (logo, card piles) */
 .centerBoard {
-  grid-column: 2 / 11;
-  grid-row: 2 / 11;
-  background: rgba(255, 255, 255, 0.05); /* Glass effect */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent-gold);
-  border: 1px solid rgba(255,255,255,0.05);
-  backdrop-filter: blur(5px);
+    grid-column: 2 / 11;
+    grid-row: 2 / 11;
+    background: var(--board-center-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    /* Remove borders, make it seamless */
 }
 
 .title {
-  font-size: 4rem;
-  letter-spacing: 0.5rem;
-  font-weight: 900;
-  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  transform: rotate(-45deg);
-  opacity: 0.1;
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--accent-danger);
+    background: white;
+    padding: 1rem 4rem;
+    border: 4px solid var(--text-inverse);
+    transform: rotate(-45deg) translateZ(2px); /* Pop it up slightly */
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 2rem;
 }
 
-.playersTokenContainer {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  display: flex;
-  gap: 2px;
-  flex-wrap: wrap;
+.diceContainer {
+    position: absolute;
+    bottom: 25%;
+    right: 25%; /* Offset */
+    display: flex;
+    flex-direction: column; /* Stack or Grid */
+    gap: 1rem;
+    align-items: center;
+    transform: translateZ(20px); /* Floating dice */
 }
 
 .playerToken {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  z-index: 20;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    /* 3D Token look */
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), transparent), currentColor;
+    border: 3px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    
+    position: absolute;
+    /* Smooth transition for top/left changes */
+    transition: top 0.6s cubic-bezier(0.25, 1, 0.5, 1), left 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.2s;
+    
+    /* Ensure it floats ABOVE everything */
+    z-index: 1000;
+    pointer-events: none; /* Let clicks pass through to board */
+    
+    /* Dimensions relative to board */
 }
+
+/* Removed playersTokenContainer as tokens are now direct children of board */

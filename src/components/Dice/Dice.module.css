@@ -1,0 +1,122 @@
+.scene {
+  width: 100px;
+  height: 100px;
+  perspective: 1000px; /* Deeper perspective for realistic 3D */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* 
+   Wrapper for the bounce/trajectory animation.
+   Moves the whole cube in X/Y/Z space to simulate the throw curve. 
+*/
+.physicsWrapper {
+  width: 50px;
+  height: 50px;
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.physicsWrapper.thrown {
+  animation: throwPhysics 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+}
+
+.cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth settling */
+}
+
+/* Wild spinning while rolling */
+.cube.rolling {
+  animation: spinRandom 0.5s infinite linear;
+}
+
+/* Faces */
+.face {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border: 2px solid white; /* Cleaner look */
+  background: white; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: 900;
+  color: black;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.15);
+  border-radius: 10px; /* Slightly more rounded */
+  backface-visibility: hidden; /* Fixes flickering sometimes */
+}
+
+/* Dots styling - making them look premium */
+.face[data-face="1"] { color: #d00; } /* Red for 1 is classic */
+
+/* Transform faces */
+.front  { transform: rotateY(0deg) translateZ(25px); }
+.back   { transform: rotateY(180deg) translateZ(25px); }
+.right  { transform: rotateY(90deg) translateZ(25px); }
+.left   { transform: rotateY(-90deg) translateZ(25px); }
+.top    { transform: rotateX(90deg) translateZ(25px); }
+.bottom { transform: rotateX(-90deg) translateZ(25px); }
+
+/* Rotations for results (Final States) */
+/* Note: We target the resulting rotation. */
+.show1 { transform: rotateX(0deg) rotateY(0deg); } /* Front */
+.show2 { transform: rotateX(-180deg) rotateY(0deg); } /* Back inverted */
+.show3 { transform: rotateY(-90deg); } /* Right */
+.show4 { transform: rotateY(90deg); } /* Left */
+.show5 { transform: rotateX(-90deg); } /* Top */
+.show6 { transform: rotateX(90deg); } /* Bottom */
+
+/* Dark Mode Dice Override */
+:global([data-theme='dark']) .face {
+    background: linear-gradient(135deg, #2a2a40, #1a1a2e);
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* 
+  ANIMATIONS 
+*/
+
+/* Simulates the arc of a throw + bounce */
+@keyframes throwPhysics {
+  0% {
+    transform: translate3d(0, -300px, 200px) scale(0.5); /* Start high and far */
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate3d(0, 20px, 0) scale(1.1); /* Hit board hard (squash implies impact) */
+  }
+  75% {
+    transform: translate3d(0, -40px, 0) scale(0.95); /* Bounce up */
+  }
+  85% {
+    transform: translate3d(0, 0, 0) scale(1); /* Land */
+  }
+  90% {
+    transform: translate3d(0, -5px, 0); /* Mini settle bounce */
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Wild multi-axis spin */
+@keyframes spinRandom {
+  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+  25% { transform: rotateX(90deg) rotateY(180deg) rotateZ(45deg); }
+  50% { transform: rotateX(180deg) rotateY(360deg) rotateZ(90deg); }
+  75% { transform: rotateX(270deg) rotateY(180deg) rotateZ(135deg); }
+  100% { transform: rotateX(360deg) rotateY(0deg) rotateZ(180deg); }
+}

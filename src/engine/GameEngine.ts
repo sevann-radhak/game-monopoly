@@ -4,11 +4,13 @@ import type { GameState, Player } from '../types';
 
 export const ACTION_TYPES = {
   ROLL_DICE: 'ROLL_DICE',
+  BUY_PROPERTY: 'BUY_PROPERTY',
   END_TURN: 'END_TURN',
 } as const;
 
 export type GameAction =
   | { type: typeof ACTION_TYPES.ROLL_DICE }
+  | { type: typeof ACTION_TYPES.BUY_PROPERTY }
   | { type: typeof ACTION_TYPES.END_TURN };
 
 export const createInitialState = (playerNames: string[]): GameState => {
@@ -90,10 +92,52 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       };
     }
 
+    case ACTION_TYPES.BUY_PROPERTY: {
+        if (state.turnPhase !== 'action') return state;
+
+        const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+        const currentPlayer = state.players[currentPlayerIndex];
+        const currentSpace = state.board.find(s => s.position === currentPlayer.position);
+
+        if (!currentSpace || currentSpace.type !== 'property' || currentSpace.owner) {
+            return state; // Cannot buy
+        }
+
+        if (currentPlayer.money < (currentSpace.price || 0)) {
+             return {
+                 ...state,
+                 lastAction: `Not enough money to buy ${currentSpace.name}`
+             };
+        }
+
+        // Execute Buy
+        const newPlayers = [...state.players];
+        newPlayers[currentPlayerIndex] = {
+            ...currentPlayer,
+            money: currentPlayer.money - (currentSpace.price || 0),
+            properties: [...currentPlayer.properties, currentSpace.id]
+        };
+
+        const newBoard = state.board.map(s => {
+            if (s.id === currentSpace.id) {
+                return { ...s, owner: currentPlayer.id };
+            }
+            return s;
+        });
+
+        return {
+            ...state,
+            players: newPlayers,
+            board: newBoard,
+            lastAction: `${currentPlayer.name} bought ${currentSpace.name} for $${currentSpace.price}`
+        };
+    }
+
     case ACTION_TYPES.END_TURN: {
        if (state.turnPhase === 'roll') return state; // Can't skip roll
 
        const currentIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+        // Switch to next player
        const nextIndex = (currentIndex + 1) % state.players.length;
 
        return {

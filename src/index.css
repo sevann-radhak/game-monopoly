@@ -1,45 +1,79 @@
 :root {
-  /* Colors */
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: rgba(30, 41, 59, 0.7);
+  /* Default to Dark Mode variables */
+  --bg-primary: #1a1a2e; /* Deep Midnight */
+  --bg-secondary: #16213e; /* Darker Navy */
+  --bg-card: rgba(22, 33, 62, 0.9);
   
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: #eaeaea;
+  --text-secondary: #b2b2b2;
+  --text-inverse: #1a1a1a;
   
-  --accent-gold: #fbbf24;
-  --accent-primary: #3b82f6;
-  --accent-danger: #ef4444;
-  --accent-success: #22c55e;
+  --border-color: rgba(255, 255, 255, 0.1);
+  
+  --accent-gold: #c5a059; /* Muted Gold */
+  --accent-primary: #4ecca3; /* Professional Teal */
+  --accent-danger: #e94560;
+  
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.4);
 
-  /* Monopoly Colors (Vibrant) */
-  --color-brown: #78350f;
-  --color-light-blue: #38bdf8;
-  --color-pink: #f472b6;
-  --color-orange: #fb923c;
-  --color-red: #f87171;
-  --color-yellow: #facc15;
-  --color-green: #4ade80;
-  --color-dark-blue: #3b82f6;
+  /* Monopoly Official-ish Colors (Pastel/Classic adjusted for Dark Mode) */
+  --color-brown: #8d4e25;
+  --color-light-blue: #aae0fa;
+  --color-pink: #d93a96;
+  --color-orange: #f7941d;
+  --color-red: #ed1b24;
+  --color-yellow: #fef200;
+  --color-green: #1fb25a;
+  --color-dark-blue: #0072bb;
 
-  /* Spacing */
+  /* Board specific */
+  --board-bg: #0f3460;
+  --board-center-bg: rgba(15, 52, 96, 0.5);
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
 
-  /* Board Config */
   --board-size: 800px;
-  --cell-size: calc(var(--board-size) / 13); /* Approx */
+  --cell-size: calc(var(--board-size) / 13);
   
-  /* Effects */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --glow-gold: 0 0 10px rgba(251, 191, 36, 0.3);
-
   font-family: 'Inter', system-ui, sans-serif;
-  color-scheme: dark;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme='light'] {
+  --bg-primary: #e6e9ef; 
+  --bg-secondary: #ffffff;
+  --bg-card: #f9f9f9;
+  
+  --text-primary: #2d3436;
+  --text-secondary: #636e72;
+  --text-inverse: #f8f8f8;
+  
+  --border-color: #dfe6e9;
+  
+  --accent-gold: #b38b37;
+  --accent-primary: #2563eb; 
+  --accent-danger: #d63031;
+  
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+
+  /* Pastel / Classic Colors */
+  --color-brown: #955436;
+  --color-light-blue: #aae0fa; /* Pastel Blue */
+  --color-pink: #d93a96;
+  --color-orange: #f7941d;
+  --color-red: #ed1b24;
+  --color-yellow: #fff200;
+  --color-green: #1fb25a;
+  --color-dark-blue: #0072bb;
+
+  --board-bg: #cde6d0; /* Classic Mint Green */
+  --board-center-bg: #cde6d0; /* Seamless center */
 }
 
 body {

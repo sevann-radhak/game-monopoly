@@ -1,0 +1,92 @@
+.dashboard {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+  /* Positioned specifically, maybe right side? */
+  position: absolute;
+  right: 2rem;
+  top: 2rem;
+  z-index: 100;
+}
+
+.header {
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.playerList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.playerItem {
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.playerSummary {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    border-left: 4px solid transparent; /* Set inline */
+}
+
+.playerSummary:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.name {
+    font-weight: bold;
+    flex: 1;
+}
+
+.money {
+    color: var(--accent-gold);
+    font-family: monospace;
+    font-size: 1.1em;
+}
+
+.propCount {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.chevron {
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.playerDetails {
+    padding: 1rem;
+    background: rgba(0,0,0,0.1);
+    border-top: 1px solid var(--border-color);
+}
+
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.5rem;
+}
+
+.empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    font-size: 0.9rem;
+    padding: 1rem;
+}

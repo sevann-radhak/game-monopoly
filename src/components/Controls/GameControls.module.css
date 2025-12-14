@@ -2,86 +2,183 @@
   position: absolute;
   top: 2rem;
   left: 2rem;
-  width: 300px;
-  background: var(--bg-card);
-  backdrop-filter: blur(10px);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: var(--shadow-lg);
-  color: var(--text-primary);
+  width: 320px;
+  /* Removed background/border/shadow from container itself so it looks like separate blocks */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   z-index: 100;
+  transition: all 0.3s ease;
 }
 
 .playerInfo {
-  padding-left: 1rem;
-  background: rgba(0,0,0,0.2);
-  padding: 1rem;
-  border-radius: 0.5rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+  /* The color prop adds a border-left via inline style, but let's make it nicer */
+  position: relative;
+  overflow: hidden;
+}
+
+.playerInfo::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: currentColor; /* Inherit logic handled in component style/color prop? */
+  /* Actually component sets borderLeft, so we can ignore this psuedo or use it for glow */
 }
 
 .playerName {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .money {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 300;
   color: var(--accent-gold);
   text-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+  margin: 0.5rem 0;
 }
 
 .status {
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
-  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.statusActive {
+  color: var(--accent-primary);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 
 .actions {
   display: flex;
   gap: 1rem;
+  align-items: center;
+  /* Ensure actions are below */
 }
 
 .button {
   flex: 1;
-  padding: 0.75rem;
+  padding: 1rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: var(--accent-primary);
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
 }
 
 .button:disabled {
   background: var(--bg-secondary);
   color: var(--text-secondary);
   cursor: not-allowed;
+  filter: grayscale(1);
+  box-shadow: none;
 }
 
 .button:not(:disabled):hover {
-  filter: brightness(1.2);
+  filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-lg);
+}
+
+.themeToggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.themeToggle:hover {
+  background: var(--bg-secondary);
+  transform: rotate(15deg);
+  border-color: var(--accent-gold);
 }
 
 .log {
-  margin-top: auto;
-  padding: 0.5rem;
-  background: rgba(0,0,0,0.3);
-  border-radius: 0.25rem;
+  margin-top: 5px;
+  padding: 0.75rem;
+  background: var(--bg-card); /* Card look for log too */
+  backdrop-filter: blur(5px);
+  border-radius: 0.5rem;
   font-family: monospace;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  background: var(--bg-card); /* Card look for log too */
+  backdrop-filter: blur(5px);
+  border-radius: 0.5rem;
+  font-family: monospace;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  max-height: 100px;
-  overflow-y: auto;
+  border: 1px solid var(--border-color);
+}
+
+.propertyStatus {
+    padding: 1rem;
+    background: rgba(0,0,0,0.2);
+    border: 2px solid var(--border-color);
+    border-radius: 0.5rem;
+    text-align: center;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.propertiesList {
+    margin-top: 1rem;
+}
+
+.propertiesList h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.propertyChip {
+    font-size: 0.7rem;
+    background: rgba(0,0,0,0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
 }

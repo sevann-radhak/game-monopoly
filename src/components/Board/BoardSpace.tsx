@@ -7,10 +7,12 @@ interface BoardSpaceProps {
   space: Space;
   className?: string;
   players?: React.ReactNode;
-  isFocused?: boolean; // Added prop
+  isFocused?: boolean;
+  gridRow?: number;
+  gridColumn?: number;
 }
 
-export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, players, isFocused }) => {
+export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, players, isFocused, gridRow, gridColumn }) => {
   const isCorner = space.type === SpaceType.CORNER;
   const isProperty = space.type === SpaceType.PROPERTY;
   
@@ -40,6 +42,8 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, player
           [styles.focused]: isFocused
       })}
       style={{
+         gridRow: gridRow,
+         gridColumn: gridColumn,
          '--property-color': space.color ? `var(--color-${space.color.replace('_', '-')})` : 'transparent',
          '--owner-border': ownerColor ? `3px solid ${ownerColor}` : '1px solid var(--border-color)',
          '--owner-border-color': ownerColor || 'transparent',

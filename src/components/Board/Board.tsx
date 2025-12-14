@@ -18,6 +18,14 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
   const [isDragging, setIsDragging] = React.useState(false);
   const lastMousePos = React.useRef({ x: 0, y: 0 });
 
+  // Debug: Log initial player positions on mount
+  React.useEffect(() => {
+    gameState.players.forEach(player => {
+      const space = gameState.board.find(s => s.position === player.position);
+      console.log(`[INIT] Player ${player.name}: position=${player.position}, space=${space?.name || 'NOT FOUND'}, spaceId=${space?.id || 'NOT FOUND'}`);
+    });
+  }, []); // Only on mount
+
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only drag if clicking background, not interactive elements (chips, buttons)
     // For now simple check
@@ -61,25 +69,47 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
   // 31-39 -> Right Col (Row 2...10, Col 11)
 
   const getGridStyle = (space: { position: number, id: string }) => {
-    // Explicit overrides to prevent off-by-one errors
-    if (space.id === 'go') return { gridRow: 11, gridColumn: 11 };
-    if (space.id === 'jail') return { gridRow: 11, gridColumn: 1 };
-    if (space.id === 'free_parking') return { gridRow: 1, gridColumn: 1 };
-    if (space.id === 'go_to_jail') return { gridRow: 1, gridColumn: 11 };
-    if (space.id === 'boardwalk') return { gridRow: 10, gridColumn: 11 };
-
     const index = space.position;
+    
+    // Position-based calculation is the source of truth
+    // This ensures position 0 (GO) always maps to row 11, col 11
     let row = 1;
     let col = 1;
 
-    if (index === 0) { row = 11; col = 11; }
-    else if (index > 0 && index < 10) { row = 11; col = 11 - index; }
-    else if (index === 10) { row = 11; col = 1; }
-    else if (index > 10 && index < 20) { row = 11 - (index - 10); col = 1; }
-    else if (index === 20) { row = 1; col = 1; }
-    else if (index > 20 && index < 30) { row = 1; col = 1 + (index - 20); }
-    else if (index === 30) { row = 1; col = 11; }
-    else if (index > 30 && index < 40) { row = 1 + (index - 30); col = 11; }
+    if (index === 0) { 
+      // GO - Bottom Right corner (row 11, col 11)
+      row = 11; 
+      col = 11; 
+    } else if (index > 0 && index < 10) { 
+      // Bottom row (positions 1-9) - moving left from GO
+      row = 11; 
+      col = 11 - index; 
+    } else if (index === 10) { 
+      // Jail - Bottom Left corner
+      row = 11; 
+      col = 1; 
+    } else if (index > 10 && index < 20) { 
+      // Left column (positions 11-19) - moving up from Jail
+      row = 11 - (index - 10); 
+      col = 1; 
+    } else if (index === 20) { 
+      // Free Parking - Top Left corner
+      row = 1; 
+      col = 1; 
+    } else if (index > 20 && index < 30) { 
+      // Top row (positions 21-29) - moving right from Free Parking
+      row = 1; 
+      col = 1 + (index - 20); 
+    } else if (index === 30) { 
+      // Go To Jail - Top Right corner
+      row = 1; 
+      col = 11; 
+    } else if (index > 30 && index < 40) { 
+      // Right column (positions 31-39) - moving down from Go To Jail
+      // Position 31 -> row 2, Position 39 -> row 10
+      row = 1 + (index - 30); 
+      col = 11; 
+    }
 
     return { gridRow: row, gridColumn: col };
   };
@@ -117,20 +147,27 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
            // Players were rendered separately.
            // So I just need to add isFocused.
 
+           const gridStyle = getGridStyle(space);
            return (
-             <div key={space.id} style={getGridStyle(space)} className={styles.gridCellWrapper}>
-                <BoardSpace 
-                    space={space} 
-                    isFocused={focusedPropertyId === space.id}
-                />
-             </div>
+             <BoardSpace 
+                key={space.id}
+                space={space} 
+                isFocused={focusedPropertyId === space.id}
+                gridRow={gridStyle.gridRow}
+                gridColumn={gridStyle.gridColumn}
+             />
            );
         })}
         
         {/* Render Players Overlay (Smooth Movement) */}
         {gameState.players.map((player, index) => {
-             const currentSpace = gameState.board.find(s => s.position === player.position) || { position: player.position, id: 'unknown' };
-             const { gridRow, gridColumn } = getGridStyle(currentSpace);
+             const currentSpace = gameState.board.find(s => s.position === player.position);
+             if (!currentSpace) {
+               console.error(`[ERROR] Space not found for position ${player.position}. Player: ${player.name}, Position: ${player.position}`);
+               console.error(`[ERROR] Available positions in board:`, gameState.board.map(s => `${s.name}(${s.position})`));
+             }
+             const spaceForGrid = currentSpace || { position: player.position, id: 'unknown' };
+             const { gridRow, gridColumn } = getGridStyle(spaceForGrid);
              
              // Convert Grid Row/Col to approximate top/left percentages for smooth transition
              // Grid is 11x11. 
@@ -141,6 +178,19 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
              const cellPercent = 100 / 11;
              const top = (gridRow - 1) * cellPercent;
              const left = (gridColumn - 1) * cellPercent;
+             
+             // Debug logging for initial positions
+             if (player.position === 0 || player.position === 39) {
+               console.log(`[DEBUG] Player ${player.name}:`, {
+                 position: player.position,
+                 spaceId: spaceForGrid.id,
+                 spaceName: currentSpace?.name || 'unknown',
+                 gridRow,
+                 gridColumn,
+                 topPercent: top.toFixed(2),
+                 leftPercent: left.toFixed(2)
+               });
+             }
              
              // Offset to center in cell + subtle index offset to prevent total overlap
              // Cell center is cellPercent / 2

@@ -1,0 +1,53 @@
+.space {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  text-align: center;
+  font-weight: 600;
+  user-select: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.space:hover {
+  transform: scale(1.05); /* Slight pop */
+  z-index: 10;
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
+}
+
+.colorBar {
+  height: 20%;
+  width: 100%;
+  border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+
+.name {
+  padding: 2px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-wrap: break-word;
+}
+
+.price {
+  margin-bottom: 2px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Specific Orientations handled by grid placement usually, 
+   but content rotation might be needed for side pieces if we want text fast read.
+   For now, simple boxes. 
+*/
+
+.corner {
+  background: var(--bg-secondary);
+  font-size: 0.8rem;
+  justify-content: center;
+}

@@ -1,0 +1,73 @@
+.boardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: radial-gradient(circle at center, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  min-height: 100vh;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  grid-template-rows: repeat(11, 1fr);
+  width: var(--board-size);
+  height: var(--board-size);
+  background: #121212;
+  border: 4px solid var(--accent-gold);
+  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.gridCellWrapper {
+  display: contents; /* Let the child be the grid item? No, we need wrapper to supply style. */
+  /* Actually, 'display: contents' causes the child to be the grid item using the style on wrapper? 
+     No, style is on wrapper. Wrapper becomes grid item. 
+  */
+}
+
+/* We need the wrapper to fill the cell */
+.gridCellWrapper > * {
+  width: 100%;
+  height: 100%;
+}
+
+.centerBoard {
+  grid-column: 2 / 11;
+  grid-row: 2 / 11;
+  background: rgba(255, 255, 255, 0.05); /* Glass effect */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-gold);
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(5px);
+}
+
+.title {
+  font-size: 4rem;
+  letter-spacing: 0.5rem;
+  font-weight: 900;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  transform: rotate(-45deg);
+  opacity: 0.1;
+}
+
+.playersTokenContainer {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.playerToken {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  z-index: 20;
+}

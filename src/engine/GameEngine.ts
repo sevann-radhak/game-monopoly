@@ -1,5 +1,6 @@
 import { BOARD_CONFIG } from './constants';
 import { calculateNewPosition, isDouble, rollDice } from './domain/rules/MovementRules';
+import { calculateRent } from './domain/rules/RentRules';
 import type { GameState, Player } from '../types';
 
 export const ACTION_TYPES = {
@@ -57,11 +58,34 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
       const { position, passedGo } = calculateNewPosition(currentPlayer.position, moveAmount);
       
-      const newPlayers = [...state.players];
+      let newPlayers = [...state.players];
+      let playerMoney = passedGo ? currentPlayer.money + 200 : currentPlayer.money;
+      let lastActionMsg = `${currentPlayer.name} rolled ${moveAmount} (Dice: ${dice[0]}, ${dice[1]})`;
+
+      // Check for rent
+      const landedSpace = state.board.find(s => s.position === position);
+      if (landedSpace && landedSpace.owner && landedSpace.owner !== currentPlayer.id && !landedSpace.mortgaged) {
+          const rentAmount = calculateRent(landedSpace, state.board, moveAmount);
+          
+          if (rentAmount > 0) {
+              playerMoney -= rentAmount;
+              
+              // Pay the owner
+              const ownerIndex = newPlayers.findIndex(p => p.id === landedSpace.owner);
+              if (ownerIndex !== -1) {
+                  newPlayers[ownerIndex] = {
+                      ...newPlayers[ownerIndex],
+                      money: newPlayers[ownerIndex].money + rentAmount
+                  };
+              }
+              lastActionMsg += `. Paid $${rentAmount} rent to ${newPlayers[ownerIndex].name}`;
+          }
+      }
+
       newPlayers[currentPlayerIndex] = {
         ...currentPlayer,
         position,
-        money: passedGo ? currentPlayer.money + 200 : currentPlayer.money,
+        money: playerMoney,
       };
 
       const newDoublesCount = double ? state.doublesCount + 1 : 0;
@@ -85,10 +109,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         players: newPlayers,
         dice,
         doublesCount: newDoublesCount,
-        turnPhase: double ? 'roll' : 'action', // Double = roll again (simplified, strictly should be action then roll)
-         // Actually in Monopoly: Move -> Action (Buy/Pay) -> If Double, Roll Again.
-         // For now, let's say 'action' phase allows ending turn OR rolling again if double.
-        lastAction: `${currentPlayer.name} rolled ${moveAmount} (Dice: ${dice[0]}, ${dice[1]})`,
+        turnPhase: double ? 'roll' : 'action', 
+        lastAction: lastActionMsg,
       };
     }
 

@@ -216,9 +216,14 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
         
         <div className={styles.centerBoard}>
            <h1 className={styles.title}>MONOPOLY</h1>
-            <div className={styles.diceContainer}>
-              <Dice value={gameState.dice[0]} isRolling={gameState.turnPhase === 'roll' && gameState.dice[0] === 0 ? true : false} />
-              <Dice value={gameState.dice[1]} isRolling={gameState.turnPhase === 'roll' && gameState.dice[1] === 0 ? true : false} />
+            <div 
+               className={styles.diceContainer}
+               style={{
+                   transform: `translateZ(50px) rotateZ(${-rotation.z}deg) rotateX(${-rotation.x}deg)`
+               }}
+            >
+              <Dice value={gameState.dice[0]} isRolling={isRolling} />
+              <Dice value={gameState.dice[1]} isRolling={isRolling} />
             </div>
            
            {/* Temporary Controls moved to App usually, but for debug maybe here or in center? */}

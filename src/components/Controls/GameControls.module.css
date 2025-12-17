@@ -96,10 +96,10 @@
 }
 
 .button:disabled {
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
+  background: var(--text-secondary);
+  color: var(--bg-primary);
+  opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(1);
   box-shadow: none;
 }
 

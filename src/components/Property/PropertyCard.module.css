@@ -41,6 +41,21 @@
     margin-bottom: 2px;
 }
 
+.monopolyBadge {
+    background: rgba(0,0,0,0.3);
+    color: white;
+    font-size: 0.5em;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-top: 2px;
+    letter-spacing: 1px;
+    font-weight: 900;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
 .name {
   font-weight: 800;
   text-transform: uppercase;
@@ -101,4 +116,13 @@
     margin-top: 2px;
     text-align: center;
     line-height: 1.2;
+}
+
+.activeRent {
+    background-color: var(--accent-gold); /* Or helper color */
+    color: black;
+    font-weight: 900;
+    padding: 0 4px;
+    border-radius: 4px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }

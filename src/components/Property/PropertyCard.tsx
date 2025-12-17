@@ -9,9 +9,10 @@ interface PropertyCardProps {
   canBuild?: boolean;
   onBuild?: () => void;
   buildReason?: string;
+  isMonopoly?: boolean;
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, size = 'small', canBuild, onBuild, buildReason }) => {
+export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, size = 'small', canBuild, onBuild, buildReason, isMonopoly }) => {
   const colorVar = property.color 
     ? `var(--color-${property.color.replace('_', '-')})` 
     : 'gray';
@@ -26,16 +27,29 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, s
       <div className={styles.header} style={{ backgroundColor: colorVar }}>
         <div className={styles.title}>TITLE DEED</div>
         <div className={styles.name}>{property.name}</div>
+        {isMonopoly && <div className={styles.monopolyBadge}>MONOPOLY</div>}
       </div>
       <div className={styles.body}>
-        <div className={styles.rent}>Rent ${property.rent?.[0] || 0}</div>
+        <div className={`${styles.rent} ${(property.houses || 0) === 0 ? styles.activeRent : ''}`}>
+            Rent ${property.rent?.[0] || 0}
+        </div>
         {size === 'medium' && (
             <div className={styles.details}>
-                <div className={styles.row}><span>1 House</span> <span>${property.rent?.[1]}</span></div>
-                <div className={styles.row}><span>2 Houses</span> <span>${property.rent?.[2]}</span></div>
-                <div className={styles.row}><span>3 Houses</span> <span>${property.rent?.[3]}</span></div>
-                <div className={styles.row}><span>4 Houses</span> <span>${property.rent?.[4]}</span></div>
-                <div className={styles.row}><span>Hotel</span> <span>${property.rent?.[5]}</span></div>
+                <div className={`${styles.row} ${(property.houses || 0) === 1 ? styles.activeRent : ''}`}>
+                    <span>1 House</span> <span>${property.rent?.[1]}</span>
+                </div>
+                <div className={`${styles.row} ${(property.houses || 0) === 2 ? styles.activeRent : ''}`}>
+                    <span>2 Houses</span> <span>${property.rent?.[2]}</span>
+                </div>
+                <div className={`${styles.row} ${(property.houses || 0) === 3 ? styles.activeRent : ''}`}>
+                    <span>3 Houses</span> <span>${property.rent?.[3]}</span>
+                </div>
+                <div className={`${styles.row} ${(property.houses || 0) === 4 ? styles.activeRent : ''}`}>
+                    <span>4 Houses</span> <span>${property.rent?.[4]}</span>
+                </div>
+                <div className={`${styles.row} ${(property.houses || 0) === 5 ? styles.activeRent : ''}`}>
+                    <span>Hotel</span> <span>${property.rent?.[5]}</span>
+                </div>
             </div>
         )}
         <div className={styles.price}>Mortgage Value ${property.price ? property.price / 2 : 0}</div>

@@ -94,15 +94,15 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
         <button 
           className={styles.button}
-          disabled={gameState.turnPhase !== 'roll' || isRolling}
+          disabled={(gameState.turnPhase !== 'roll' && !(gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0)) || isRolling}
           onClick={handleRoll}
         >
-          {isRolling ? 'Rolling...' : 'Roll Dice'}
+          {isRolling ? 'Rolling...' : (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 ? 'Roll Again' : 'Roll Dice')}
         </button>
         
         <button 
           className={styles.button}
-          disabled={gameState.turnPhase === 'roll'}
+          disabled={gameState.turnPhase === 'roll' || (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0)}
           onClick={() => dispatch({ type: ACTION_TYPES.END_TURN })}
         >
           End Turn

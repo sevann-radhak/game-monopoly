@@ -1,17 +1,20 @@
 import { BOARD_CONFIG } from './constants';
 import { calculateNewPosition, isDouble, rollDice } from './domain/rules/MovementRules';
 import { calculateRent } from './domain/rules/RentRules';
+import { canBuildHouse } from './domain/rules/BuildingRules';
 import type { GameState, Player } from '../types';
 
 export const ACTION_TYPES = {
   ROLL_DICE: 'ROLL_DICE',
   BUY_PROPERTY: 'BUY_PROPERTY',
+  BUILD_HOUSE: 'BUILD_HOUSE',
   END_TURN: 'END_TURN',
 } as const;
 
 export type GameAction =
   | { type: typeof ACTION_TYPES.ROLL_DICE }
   | { type: typeof ACTION_TYPES.BUY_PROPERTY }
+  | { type: typeof ACTION_TYPES.BUILD_HOUSE, propertyId: string }
   | { type: typeof ACTION_TYPES.END_TURN };
 
 export const createInitialState = (playerNames: string[]): GameState => {
@@ -42,7 +45,8 @@ export const createInitialState = (playerNames: string[]): GameState => {
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case ACTION_TYPES.ROLL_DICE: {
-      if (state.turnPhase !== 'roll') return state;
+      const isDoublesReRoll = state.turnPhase === 'action' && isDouble(state.dice);
+      if (state.turnPhase !== 'roll' && !isDoublesReRoll) return state;
 
       const dice = rollDice();
       const double = isDouble(dice);
@@ -109,7 +113,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         players: newPlayers,
         dice,
         doublesCount: newDoublesCount,
-        turnPhase: double ? 'roll' : 'action', 
+        turnPhase: 'action', // Always action so they can buy/build
         lastAction: lastActionMsg,
       };
     }
@@ -155,8 +159,53 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         };
     }
 
+    case ACTION_TYPES.BUILD_HOUSE: {
+        // Find property
+        const property = state.board.find(s => s.id === (action as any).propertyId);
+        if (!property) return state;
+
+        const currentPlayerIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
+        const currentPlayer = state.players[currentPlayerIndex];
+
+        const { canBuild, reason } = canBuildHouse(currentPlayer, property, state.board);
+
+        if (!canBuild) {
+            return {
+                ...state,
+                lastAction: `Cannot build on ${property.name}: ${reason}`
+            };
+        }
+
+        // Execute Build
+        const houseCost = property.houseCost || 0;
+        
+        const newPlayers = [...state.players];
+        newPlayers[currentPlayerIndex] = {
+            ...currentPlayer,
+            money: currentPlayer.money - houseCost
+        };
+
+        const newBoard = state.board.map(s => {
+            if (s.id === property.id) {
+                 return { ...s, houses: (s.houses || 0) + 1 };
+            }
+            return s;
+        });
+
+        const newLevel = (property.houses || 0) + 1;
+        const upgradeName = newLevel === 5 ? 'Hotel' : 'House';
+
+        return {
+            ...state,
+            players: newPlayers,
+            board: newBoard,
+            lastAction: `${currentPlayer.name} built a ${upgradeName} on ${property.name} for $${houseCost}`
+        };
+    }
+
     case ACTION_TYPES.END_TURN: {
        if (state.turnPhase === 'roll') return state; // Can't skip roll
+       if (isDouble(state.dice) && state.turnPhase !== 'end') return state; // Must roll again if doubles (unless jail/end)
 
        const currentIndex = state.players.findIndex(p => p.id === state.currentPlayerId);
         // Switch to next player

@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import type { GameState } from '../../types';
 import { PropertyCard } from '../Property/PropertyCard';
+import { ACTION_TYPES, type GameAction } from '../../engine/GameEngine';
+import { canBuildHouse } from '../../engine/domain/rules/BuildingRules';
 import styles from './PlayerDashboard.module.css';
 
 interface DashboardProps {
   gameState: GameState;
+  dispatch: React.Dispatch<GameAction>;
   onFocusProperty: (propertyId: string) => void;
 }
 
-export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, onFocusProperty }) => {
+export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch, onFocusProperty }) => {
   const [expandedPlayerId, setExpandedPlayerId] = useState<string | null>(gameState.currentPlayerId);
 
   const togglePlayer = (pid: string) => {
@@ -42,11 +45,17 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, onFocusPr
                       player.properties.map(pid => {
                         const prop = gameState.board.find(s => s.id === pid);
                         if (!prop) return null;
+                        
+                        const buildCheck = canBuildHouse(player, prop, gameState.board);
+
                         return (
                             <PropertyCard 
                                 key={pid} 
                                 property={prop} 
                                 onClick={() => onFocusProperty(pid)}
+                                canBuild={buildCheck.canBuild}
+                                onBuild={() => dispatch({ type: ACTION_TYPES.BUILD_HOUSE, propertyId: pid })}
+                                buildReason={buildCheck.reason}
                             />
                         );
                       })

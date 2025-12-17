@@ -56,8 +56,22 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, player
       {/* Property Color Strip (Top) */}
       {isProperty && space.color && (
         <div className={styles.colorBar} style={{ backgroundColor: 'var(--property-color)' }}>
+            {/* House/Hotel Visuals */}
+            {space.houses && space.houses > 0 && (
+                <div className={styles.improvements}>
+                    {space.houses === 5 ? (
+                        <div className={styles.hotel} title="Hotel" />
+                    ) : (
+                        Array.from({ length: space.houses }).map((_, i) => (
+                            <div key={i} className={styles.house} />
+                        ))
+                    )}
+                </div>
+            )}
+
             {space.owner && (
                 <div className={styles.ownerMarker} title={`Owned by ${space.owner}`}>
+
                    <div className={styles.ownerInitial}>
                        {space.owner === 'p1' ? 'P1' : 'P2'}
                    </div>

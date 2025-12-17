@@ -104,3 +104,32 @@
     margin: 0;
     margin-bottom: 0;
 }
+
+.improvements {
+    position: absolute;
+    bottom: -6px; /* Hang slightly off the color bar */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2px;
+    z-index: 5;
+}
+
+.house {
+    width: 8px;
+    height: 8px;
+    background-color: #2ecc71; /* Green */
+    border: 1px solid white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    /* House shape clip path or simple square */
+    clip-path: polygon(0% 100%, 0% 40%, 50% 0%, 100% 40%, 100% 100%);
+}
+
+.hotel {
+    width: 16px; 
+    height: 10px;
+    background-color: #e74c3c; /* Red */
+    border: 1px solid white;
+    border-radius: 1px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}

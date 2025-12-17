@@ -6,9 +6,12 @@ interface PropertyCardProps {
   property: Space;
   onClick?: () => void;
   size?: 'small' | 'medium';
+  canBuild?: boolean;
+  onBuild?: () => void;
+  buildReason?: string;
 }
 
-export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, size = 'small' }) => {
+export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, size = 'small', canBuild, onBuild, buildReason }) => {
   const colorVar = property.color 
     ? `var(--color-${property.color.replace('_', '-')})` 
     : 'gray';
@@ -36,6 +39,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick, s
             </div>
         )}
         <div className={styles.price}>Mortgage Value ${property.price ? property.price / 2 : 0}</div>
+      
+      {canBuild && onBuild && (
+          <button 
+            className={styles.buildButton}
+            onClick={(e) => {
+                e.stopPropagation();
+                onBuild();
+            }}
+          >
+            Build House (${property.houseCost})
+          </button>
+      )}
+      {!canBuild && buildReason && size === 'medium' && (
+          <div className={styles.reason}>Cannot build: {buildReason}</div>
+      )}
       </div>
     </div>
   );

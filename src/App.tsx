@@ -36,6 +36,7 @@ function App() {
       />
       <PlayerDashboard 
         gameState={gameState} 
+        dispatch={dispatch}
         onFocusProperty={(id) => setFocusedPropertyId(id)}
       />
     </div>

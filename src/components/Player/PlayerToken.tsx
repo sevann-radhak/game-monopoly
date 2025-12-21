@@ -23,14 +23,107 @@ export const PlayerToken: React.FC<PlayerTokenProps> = ({
   const [visualPosition, setVisualPosition] = useState(position);
   const isMoving = useRef(false);
   const queue = useRef<number[]>([]);
+  const lastPositionRef = useRef(position);
+  const lastJailSourceRef = useRef<number | undefined>(undefined);
+  const lastMoveTypeRef = useRef<'forward' | 'backward' | 'jail'>('forward');
 
   // When target position changes, add to queue
   useEffect(() => {
-    if (position !== visualPosition) {
-        // Calculate path
-        const path = calculatePath(visualPosition, position, moveType, jailSource);
-        queue.current = [...queue.current, ...path];
-        processQueue();
+    // Skip if we're currently moving - let the queue finish first
+    if (isMoving.current) return;
+    
+    const positionChanged = position !== lastPositionRef.current;
+    const jailSourceChanged = jailSource !== lastJailSourceRef.current;
+    const moveTypeChanged = moveType !== lastMoveTypeRef.current;
+    
+    // Special handling for Go To Jail from space 30 (landing on Go To Jail)
+    if (jailSource === 30 && moveType === 'jail' && position === 10) {
+      // Clear any existing queue and calculate path from current visual position
+      queue.current = [];
+      isMoving.current = false;
+      
+      // Calculate path: from visualPosition to 30 (if not already there), then to 10
+      const path: number[] = [];
+      let current = visualPosition;
+      
+      // If we haven't reached 30 yet, move forward to 30
+      if (current !== 30) {
+        // Check if we're before 30 (normal case) or if we've wrapped around
+        const needsForwardTo30 = current < 30 || (current > 30 && current < 40);
+        if (needsForwardTo30) {
+          while (current !== 30) {
+            current = (current + 1) % 40;
+            if (current === 30) {
+              path.push(current);
+              break;
+            }
+            path.push(current);
+          }
+        }
+      }
+      
+      // Now move backward from 30 to 10
+      current = 30;
+      while (current !== 10) {
+        current = (current - 1 + 40) % 40;
+        path.push(current);
+        if (current === 10) break;
+      }
+      
+      queue.current = path;
+      lastPositionRef.current = position;
+      lastJailSourceRef.current = jailSource;
+      lastMoveTypeRef.current = moveType;
+      processQueue();
+      return;
+    }
+    
+    // Special handling for Go To Jail from card (jailSource is undefined)
+    if (moveType === 'jail' && jailSource === undefined && position === 10) {
+      // Clear any existing queue - card sends directly to jail
+      queue.current = [];
+      isMoving.current = false;
+      
+      // Calculate shortest path directly to position 10
+      const path: number[] = [];
+      let current = visualPosition;
+      
+      // Calculate shortest path: forward or backward?
+      const forwardDistance = (10 - current + 40) % 40;
+      const backwardDistance = (current - 10 + 40) % 40;
+      
+      if (forwardDistance <= backwardDistance) {
+        // Move forward
+        while (current !== 10) {
+          current = (current + 1) % 40;
+          path.push(current);
+          if (current === 10) break;
+        }
+      } else {
+        // Move backward
+        while (current !== 10) {
+          current = (current - 1 + 40) % 40;
+          path.push(current);
+          if (current === 10) break;
+        }
+      }
+      
+      queue.current = path;
+      lastPositionRef.current = position;
+      lastJailSourceRef.current = jailSource;
+      lastMoveTypeRef.current = moveType;
+      processQueue();
+      return;
+    }
+    
+    if (positionChanged || jailSourceChanged || moveTypeChanged) {
+      // Calculate path from current visual position to target
+      const path = calculatePath(visualPosition, position, moveType, jailSource);
+      queue.current = [...queue.current, ...path];
+      lastPositionRef.current = position;
+      lastJailSourceRef.current = jailSource;
+      lastMoveTypeRef.current = moveType;
+      processQueue();
     }
   }, [position, moveType, jailSource]);
 
@@ -40,22 +133,7 @@ export const PlayerToken: React.FC<PlayerTokenProps> = ({
 
     let isBackward = type === 'backward';
     
-    if (type === 'jail') {
-        if (source === 30) {
-            // Real Go To Jail: Forward to 30, then backward to 10
-            // Forward to 30
-            while (current !== 30) {
-                current = (current + 1) % 40;
-                path.push(current);
-            }
-            // Backward to 10
-            while (current !== 10) {
-                current = (current - 1 + 40) % 40;
-                path.push(current);
-            }
-            return path;
-        }
-
+    if (type === 'jail' && source !== 30) {
         // Standard jail (3 doubles or card without source): Move in direction avoiding GO
         isBackward = end < current;
     } else if (type === 'forward') {
@@ -66,11 +144,13 @@ export const PlayerToken: React.FC<PlayerTokenProps> = ({
         while (current !== end) {
             current = (current - 1 + 40) % 40;
             path.push(current);
+            if (current === end) break;
         }
     } else {
         while (current !== end) {
             current = (current + 1) % 40;
             path.push(current);
+            if (current === end) break;
         }
     }
     
@@ -82,13 +162,20 @@ export const PlayerToken: React.FC<PlayerTokenProps> = ({
     
     isMoving.current = true;
     
+    let lastProcessedPosition = visualPosition;
+    
     while (queue.current.length > 0) {
         const next = queue.current.shift();
         if (next !== undefined) {
+            lastProcessedPosition = next;
             setVisualPosition(next);
             await new Promise(resolve => setTimeout(resolve, 150)); 
         }
     }
+    
+    // Ensure visual position matches final position after movement completes
+    setVisualPosition(position);
+    lastPositionRef.current = position;
     
     isMoving.current = false;
   };

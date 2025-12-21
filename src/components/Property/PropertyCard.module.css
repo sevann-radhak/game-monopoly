@@ -93,22 +93,7 @@
     opacity: 0.7;
 }
 
-.buildButton {
-    margin-top: 5px;
-    background-color: var(--color-green, #4caf50);
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.7em;
-    font-weight: bold;
-    width: 100%;
-}
 
-.buildButton:hover {
-    filter: brightness(1.1);
-}
 
 .reason {
     font-size: 0.6em;
@@ -126,3 +111,60 @@
     border-radius: 4px;
     box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
+
+.mortgagedCard {
+    filter: grayscale(0.8) opacity(0.8);
+}
+
+.mortgagedBadge {
+    background: #e74c3c;
+    color: white;
+    font-size: 0.5em;
+    padding: 2px 4px;
+    border-radius: 0;
+    margin-top: 2px;
+    font-weight: bold;
+}
+
+.mortgageValue {
+    margin-top: auto;
+    font-size: 0.8em;
+    opacity: 0.6;
+}
+
+.actionsGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.actionButton {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.65rem;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.actionButton:hover {
+    filter: brightness(1.2);
+}
+
+.sellButton {
+    background: #f39c12;
+}
+
+.mortgageButton {
+    background: #7f8c8d;
+}
+
+.unmortgageButton {
+    background: #27ae60;
+}
+

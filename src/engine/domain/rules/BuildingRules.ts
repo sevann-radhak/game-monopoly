@@ -38,12 +38,33 @@ export const canBuildHouse = (
     // Example: [1,0,0] -> Target is the 0. Min=0. Current=0. OK.
     
     const minHouses = Math.min(...colorGroup.map(s => s.houses || 0));
-    const maxHouses = Math.max(...colorGroup.map(s => s.houses || 0)); // Not strictly needed for logic but good for debug
     
     // Allow building if we are at the minimum level
+
+
     if (currentHouses > minHouses) {
         return { canBuild: false, reason: "Must build evenly across properties" };
     }
 
     return { canBuild: true };
 };
+
+export const canSellHouse = (
+    player: Player,
+    property: Space,
+    board: Space[]
+): { canSell: boolean; reason?: string } => {
+    if (property.owner !== player.id) return { canSell: false, reason: "You don't own this" };
+    if ((property.houses || 0) <= 0) return { canSell: false, reason: "No buildings to sell" };
+
+    // Uniformity check (Reverse)
+    const colorGroup = board.filter(s => s.type === SpaceType.PROPERTY && s.color === property.color);
+    const maxHouses = Math.max(...colorGroup.map(s => s.houses || 0));
+    
+    if ((property.houses || 0) < maxHouses) {
+        return { canSell: false, reason: "Must sell evenly across properties (sell from most improved first)" };
+    }
+
+    return { canSell: true };
+};
+

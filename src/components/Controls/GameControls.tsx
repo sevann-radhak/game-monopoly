@@ -35,13 +35,15 @@ export const GameControls: React.FC<GameControlsProps> = ({
   const currentPlayer = gameState.players.find(p => p.id === gameState.currentPlayerId);
   if (!currentPlayer) return null;
 
+  const isCardPhase = gameState.turnPhase === 'card';
+
   return (
     <div className={styles.controlsContainer}>
       <div className={styles.playerInfo} style={{ borderLeft: `4px solid ${currentPlayer.color}` }}>
         <h2 className={styles.playerName}>{currentPlayer.name}</h2>
         <div className={styles.money}>${currentPlayer.money}</div>
         <div className={`${styles.status} ${gameState.turnPhase === 'roll' ? styles.statusActive : ''}`}>
-           {gameState.turnPhase === 'roll' ? '🎲 ROLL DICE TO MOVE' : 'ACTION PHASE'}
+           {isCardPhase ? '🎴 RESOLVING CARD...' : (gameState.turnPhase === 'roll' ? '🎲 ROLL DICE TO MOVE' : 'ACTION PHASE')}
         </div>
       </div>
 
@@ -49,6 +51,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
         <button 
            className={styles.themeToggle} 
            onClick={toggleTheme}
+           disabled={isCardPhase}
            title={`Switch to ${currentTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
         >
           {currentTheme === 'dark' ? '☀️' : '🌙'}
@@ -77,37 +80,94 @@ export const GameControls: React.FC<GameControlsProps> = ({
                  const canAfford = currentPlayer.money >= (currentSpace.price || 0);
 
                  return (
-                    <button 
-                        className={styles.button}
-                        disabled={!canAfford}
-                        style={{ backgroundColor: canAfford ? 'var(--accent-gold)' : 'var(--bg-secondary)' }}
-                        onClick={() => canAfford && dispatch({ type: ACTION_TYPES.BUY_PROPERTY })}
-                    >
-                        {canAfford 
-                            ? `Buy ${currentSpace.name} ($${currentSpace.price})` 
-                            : `Need $${currentSpace.price} to Buy`}
-                    </button>
+                    <div className={styles.propertyActions}>
+                      <button 
+                          className={styles.button}
+                          disabled={!canAfford || isCardPhase}
+                          style={{ backgroundColor: (canAfford && !isCardPhase) ? 'var(--accent-gold)' : 'var(--bg-secondary)', marginBottom: '0.5rem' }}
+                          onClick={() => canAfford && !isCardPhase && dispatch({ type: ACTION_TYPES.BUY_PROPERTY })}
+                      >
+                          {canAfford 
+                              ? `Buy ${currentSpace.name} ($${currentSpace.price})` 
+                              : `Need $${currentSpace.price} to Buy`}
+                      </button>
+                      <button 
+                          className={styles.auctionButton}
+                          disabled={isCardPhase}
+                          onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.DECLINE_PURCHASE })}
+                      >
+                          Decline & Auction
+                      </button>
+                    </div>
                  );
              }
              return null;
         })()}
 
+        {/* Jail Controls */}
+        {currentPlayer.isInJail && gameState.turnPhase === 'roll' && (
+          <>
+            <button 
+              className={styles.button}
+              disabled={currentPlayer.money < 50 || isRolling || isCardPhase}
+              onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.PAY_JAIL_FINE })}
+            >
+              Pay $50 Fine
+            </button>
+            {currentPlayer.getOutOfJailFreeCards > 0 && (
+              <button 
+                className={styles.button}
+                disabled={isRolling || isCardPhase}
+                onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.USE_JAIL_CARD })}
+              >
+                Use Get Out of Jail Free Card
+              </button>
+            )}
+          </>
+        )}
+
         <button 
           className={styles.button}
-          disabled={(gameState.turnPhase !== 'roll' && !(gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0)) || isRolling}
-          onClick={handleRoll}
+          disabled={((gameState.turnPhase !== 'roll' && !(gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail)) || isRolling || isCardPhase)}
+          onClick={() => !isCardPhase && handleRoll()}
         >
-          {isRolling ? 'Rolling...' : (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 ? 'Roll Again' : 'Roll Dice')}
+          {isRolling ? 'Rolling...' : (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail ? 'Roll Again' : (currentPlayer.isInJail ? 'Try for Doubles' : 'Roll Dice'))}
         </button>
         
         <button 
           className={styles.button}
-          disabled={gameState.turnPhase === 'roll' || (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0)}
-          onClick={() => dispatch({ type: ACTION_TYPES.END_TURN })}
+          disabled={
+            isCardPhase ||
+            gameState.turnPhase === 'roll' || 
+            gameState.turnPhase === 'auction' ||
+            (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail) ||
+            (gameState.turnPhase === 'action' && !!gameState.board.find(s => s.position === currentPlayer.position && s.type === 'property' && !s.owner))
+          }
+          onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.END_TURN })}
         >
           End Turn
         </button>
+
+        <button 
+          className={styles.button}
+          disabled={isCardPhase}
+          onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.SETUP_TRADE })}
+        >
+          Propose Trade
+        </button>
+
+
+        {currentPlayer.money < 0 && (
+          <button 
+            className={`${styles.button} ${styles.bankruptcyButton}`}
+            disabled={isCardPhase}
+            onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.DECLARE_BANKRUPTCY })}
+          >
+            Declare Bankruptcy
+          </button>
+        )}
       </div>
+
 
         <div className={styles.log}>
          <div className={styles.logEntry}>{gameState.lastAction}</div>

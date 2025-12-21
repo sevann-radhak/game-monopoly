@@ -86,9 +86,18 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, player
             {isCorner ? space.name.split(' ').map((word, i) => <div key={i}>{word}</div>) : space.name}
           </div>
 
-          {/* Icons for non-properties (Action, Utility, Station) - Placeholder for now */}
-          {space.type === SpaceType.ACTION && <div className={styles.icon}>❓</div>} 
-          {/* We can use specific icons based on ID later */}
+          {/* Icons for non-properties (Action, Utility, Station) */}
+          {space.type === SpaceType.ACTION && (
+            <div className={styles.icon}>
+              {space.id.startsWith('chance') ? '❓' : 
+               space.id.startsWith('community_chest') ? '🎁' :
+               space.id === 'income_tax' ? '💰' :
+               space.id === 'luxury' ? '💍' : '⚡'}
+            </div>
+          )}
+          
+          {space.color === 'station' && <div className={styles.icon}>🚂</div>}
+          {space.color === 'utility' && <div className={styles.icon}>{space.id === 'electric' ? '💡' : '🚰'}</div>}
           
           {space.price && <div className={styles.price}>${space.price}</div>}
       </div>

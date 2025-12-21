@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import type { GameState } from '../../types';
 import { PropertyCard } from '../Property/PropertyCard';
 import { ACTION_TYPES, type GameAction } from '../../engine/GameEngine';
-import { canBuildHouse } from '../../engine/domain/rules/BuildingRules';
+import { canBuildHouse, canSellHouse } from '../../engine/domain/rules/BuildingRules';
+import { canMortgage, canUnmortgage } from '../../engine/domain/rules/FinancialRules';
 import styles from './PlayerDashboard.module.css';
 
 interface DashboardProps {
@@ -18,6 +19,8 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
     setExpandedPlayerId(prev => prev === pid ? null : pid);
   };
 
+  const isCurrentPlayerTurn = (pid: string) => gameState.currentPlayerId === pid;
+
   return (
     <div className={styles.dashboard}>
       <h3 className={styles.header}>Players</h3>
@@ -30,7 +33,7 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
                 onClick={() => togglePlayer(player.id)}
                 style={{ borderLeftColor: player.color }}
             >
-              <span className={styles.name}>{player.name}</span>
+              <span className={styles.name}>{player.name} {isCurrentPlayerTurn(player.id) ? '(Turn)' : ''}</span>
               <span className={styles.money}>${player.money}</span>
               <span className={styles.propCount}>{player.properties.length} Props</span>
               <span className={styles.chevron}>{expandedPlayerId === player.id ? '▼' : '▶'}</span>
@@ -38,6 +41,23 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
 
             {expandedPlayerId === player.id && (
               <div className={styles.playerDetails}>
+                <div className={styles.inventory}>
+                  <h4 className={styles.subHeader}>Inventory</h4>
+                  <div className={styles.inventoryList}>
+                    {player.getOutOfJailFreeCards > 0 && (
+                      <div className={styles.inventoryItem}>
+                        🎟️ Get Out of Jail Free ({player.getOutOfJailFreeCards})
+                      </div>
+                    )}
+                    {player.getOutOfJailFreeCards === 0 && (
+                      <div className={styles.empty}>No items</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={styles.propertiesHeader}>
+                   <h4 className={styles.subHeader}>Properties</h4>
+                </div>
                 <div className={styles.cardGrid}>
                   {player.properties.length === 0 ? (
                       <div className={styles.empty}>No properties owned</div>
@@ -47,15 +67,28 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
                         if (!prop) return null;
                         
                         const buildCheck = canBuildHouse(player, prop, gameState.board);
+                        const sellCheck = canSellHouse(player, prop, gameState.board);
+                        const mortgageCheck = canMortgage(player, prop, gameState.board);
+                        const unmortgageCheck = canUnmortgage(player, prop);
+
+                        // Only allow actions if it's the player's turn and no blocking modal is open
+                        const isBlocked = gameState.turnPhase === 'card' || gameState.turnPhase === 'auction' || gameState.turnPhase === 'trade';
+                        const showActions = isCurrentPlayerTurn(player.id) && !isBlocked;
 
                         return (
                             <PropertyCard 
                                 key={pid} 
                                 property={prop} 
                                 onClick={() => onFocusProperty(pid)}
-                                canBuild={buildCheck.canBuild}
+                                canBuild={showActions && buildCheck.canBuild}
                                 onBuild={() => dispatch({ type: ACTION_TYPES.BUILD_HOUSE, propertyId: pid })}
-                                buildReason={buildCheck.reason}
+                                buildReason={(!buildCheck.canBuild && prop.owner === gameState.currentPlayerId) ? buildCheck.reason : undefined}
+                                canSell={showActions && sellCheck.canSell}
+                                onSell={() => dispatch({ type: ACTION_TYPES.SELL_BUILDING, propertyId: pid })}
+                                canMortgage={showActions && mortgageCheck.canMortgage}
+                                onMortgage={() => dispatch({ type: ACTION_TYPES.MORTGAGE_PROPERTY, propertyId: pid })}
+                                canUnmortgage={showActions && unmortgageCheck.canUnmortgage}
+                                onUnmortgage={() => dispatch({ type: ACTION_TYPES.UNMORTGAGE_PROPERTY, propertyId: pid })}
                             />
                         );
                       })
@@ -63,6 +96,7 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
                 </div>
               </div>
             )}
+
 
           </div>
         ))}

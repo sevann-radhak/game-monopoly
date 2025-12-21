@@ -1,0 +1,160 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+  animation: fadeIn 1s ease;
+}
+
+.container {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  padding: 4rem;
+  border-radius: 30px;
+  text-align: center;
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 0 100px rgba(212, 175, 55, 0.3);
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+  overflow: hidden;
+}
+
+.trophy {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+.title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 10px;
+  margin: 0;
+  color: white;
+  text-shadow: 0 0 20px rgba(255,255,255,0.5);
+}
+
+.winnerName {
+  font-size: 3rem;
+  font-weight: 900;
+  margin: 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.statValue {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.restartBtn {
+  background: var(--accent-gold);
+  color: black;
+  border: none;
+  padding: 1.2rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.restartBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px var(--accent-gold);
+}
+
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--accent-gold);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: fall 3s infinite linear;
+}
+
+.particle:nth-child(even) { background: #ff4e50; }
+.particle:nth-child(3n) { background: #4facfe; }
+
+/* Randomize positions and delays */
+.particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { left: 20%; animation-delay: 0.5s; }
+.particle:nth-child(3) { left: 30%; animation-delay: 1.2s; }
+.particle:nth-child(4) { left: 40%; animation-delay: 0.2s; }
+.particle:nth-child(5) { left: 50%; animation-delay: 1.8s; }
+.particle:nth-child(6) { left: 60%; animation-delay: 0.7s; }
+.particle:nth-child(7) { left: 70%; animation-delay: 1.1s; }
+.particle:nth-child(8) { left: 80%; animation-delay: 2s; }
+.particle:nth-child(9) { left: 90%; animation-delay: 0.3s; }
+.particle:nth-child(10) { left: 15%; animation-delay: 1.5s; }
+.particle:nth-child(11) { left: 25%; animation-delay: 0.8s; }
+.particle:nth-child(12) { left: 35%; animation-delay: 1.9s; }
+.particle:nth-child(13) { left: 45%; animation-delay: 0.4s; }
+.particle:nth-child(14) { left: 55%; animation-delay: 1.3s; }
+.particle:nth-child(15) { left: 65%; animation-delay: 0.1s; }
+.particle:nth-child(16) { left: 75%; animation-delay: 1.6s; }
+.particle:nth-child(17) { left: 85%; animation-delay: 0.9s; }
+.particle:nth-child(18) { left: 95%; animation-delay: 1.4s; }
+.particle:nth-child(19) { left: 5%; animation-delay: 1.7s; }
+.particle:nth-child(20) { left: 50%; animation-delay: 1.0s; }
+
+@keyframes fall {
+  0% { transform: translateY(-10vh) rotate(0); opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-20px) rotate(10deg); }
+}
+
+

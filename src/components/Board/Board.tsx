@@ -4,14 +4,16 @@ import { BoardSpace } from './BoardSpace';
 import styles from './Board.module.css';
 // import { PlayerToken } from '../Player/PlayerToken';
 import { Dice } from '../Dice/Dice';
+import { PlayerToken } from '../Player/PlayerToken';
 
 interface BoardProps {
   gameState: GameState;
   isRolling: boolean;
+  displayDice?: [number, number];
   focusedPropertyId?: string | null;
 }
 
-export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPropertyId }) => {
+export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice, focusedPropertyId }) => {
   const [rotation, setRotation] = React.useState({ x: 25, z: 0 }); // Tilt X slightly, rotate Z
 
   const [zoom, setZoom] = React.useState(1);
@@ -68,7 +70,7 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
   // 30 (Go To Jail) -> Top Right (Row 1, Col 11)
   // 31-39 -> Right Col (Row 2...10, Col 11)
 
-  const getGridStyle = (space: { position: number, id: string }) => {
+  const getGridStyle = (space: { position: number, id?: string }) => {
     const index = space.position;
     
     // Position-based calculation is the source of truth
@@ -159,60 +161,19 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
            );
         })}
         
-        {/* Render Players Overlay (Smooth Movement) */}
-        {gameState.players.map((player, index) => {
-             const currentSpace = gameState.board.find(s => s.position === player.position);
-             if (!currentSpace) {
-               console.error(`[ERROR] Space not found for position ${player.position}. Player: ${player.name}, Position: ${player.position}`);
-               console.error(`[ERROR] Available positions in board:`, gameState.board.map(s => `${s.name}(${s.position})`));
-             }
-             const spaceForGrid = currentSpace || { position: player.position, id: 'unknown' };
-             const { gridRow, gridColumn } = getGridStyle(spaceForGrid);
-             
-             // Convert Grid Row/Col to approximate top/left percentages for smooth transition
-             // Grid is 11x11. 
-             // Row 1 (Top) -> 0%
-             // Row 11 (Bottom) -> ~90.9%
-             // Each cell is 100/11 %
-             
-             const cellPercent = 100 / 11;
-             const top = (gridRow - 1) * cellPercent;
-             const left = (gridColumn - 1) * cellPercent;
-             
-             // Debug logging for initial positions
-             if (player.position === 0 || player.position === 39) {
-               console.log(`[DEBUG] Player ${player.name}:`, {
-                 position: player.position,
-                 spaceId: spaceForGrid.id,
-                 spaceName: currentSpace?.name || 'unknown',
-                 gridRow,
-                 gridColumn,
-                 topPercent: top.toFixed(2),
-                 leftPercent: left.toFixed(2)
-               });
-             }
-             
-             // Offset to center in cell + subtle index offset to prevent total overlap
-             // Cell center is cellPercent / 2
-             const offset = index * 3; 
-
-             return (
-                 <div
-                    key={player.id}
-                    className={styles.playerToken}
-                     style={{
-                        top: `${top}%`,
-                        left: `${left}%`,
-                        backgroundColor: player.color,
-                        // Center in cell logic...
-                        marginLeft: `calc(4.5% - 12px + ${offset}px)`, // Adjusted for 24px token (half is 12)
-                        marginTop: `calc(4.5% - 10px + ${offset}px)`, // Shift up slightly
-                        transform: `translateZ(20px)`, // Lift it up significantly to avoid clipping
-                    }}
-                    title={player.name}
-                 />
-             );
-        })}
+        {/* Render Players Overlay (Smooth Path Following) */}
+        {gameState.players.map((player, index) => (
+          <PlayerToken 
+            key={player.id}
+            name={player.name}
+            color={player.color}
+            position={player.position}
+            index={index}
+            getGridStyle={getGridStyle}
+            moveType={gameState.currentPlayerId === player.id ? gameState.lastMoveType : 'forward'}
+            jailSource={gameState.currentPlayerId === player.id ? gameState.jailSource : undefined}
+          />
+        ))}
         
         <div className={styles.centerBoard}>
            <h1 className={styles.title}>MONOPOLY</h1>
@@ -222,8 +183,8 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, focusedPrope
                    transform: `translateZ(50px) rotateZ(${-rotation.z}deg) rotateX(${-rotation.x}deg)`
                }}
             >
-              <Dice value={gameState.dice[0]} isRolling={isRolling} />
-              <Dice value={gameState.dice[1]} isRolling={isRolling} />
+              <Dice value={displayDice?.[0] ?? gameState.dice[0]} isRolling={isRolling} />
+              <Dice value={displayDice?.[1] ?? gameState.dice[1]} isRolling={isRolling} />
             </div>
            
            {/* Temporary Controls moved to App usually, but for debug maybe here or in center? */}

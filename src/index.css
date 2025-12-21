@@ -26,6 +26,8 @@
   --color-yellow: #fef200;
   --color-green: #1fb25a;
   --color-dark-blue: #0072bb;
+  --color-station: #1a1a1a;
+  --color-utility: #f2f2f2;
 
   /* Board specific */
   --board-bg: #0f3460;
@@ -71,6 +73,8 @@
   --color-yellow: #fff200;
   --color-green: #1fb25a;
   --color-dark-blue: #0072bb;
+  --color-station: #000000;
+  --color-utility: #bdc3c7;
 
   --board-bg: #cde6d0; /* Classic Mint Green */
   --board-center-bg: #cde6d0; /* Seamless center */

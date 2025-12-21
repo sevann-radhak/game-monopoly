@@ -40,6 +40,27 @@ export interface Space {
   houses?: number; // 0-4, 5=Hotel
 }
 
+export type CardType = 'chance' | 'community_chest';
+
+export interface Card {
+  id: string;
+  type: CardType;
+  text: string;
+  effect: CardEffect;
+}
+
+export type CardEffect = 
+  | { type: 'MOVE_TO', position: number, passGo?: boolean }
+  | { type: 'MOVE_RELATIVE', amount: number }
+  | { type: 'COLLECT', amount: number }
+  | { type: 'PAY', amount: number }
+  | { type: 'COLLECT_FROM_PLAYERS', amount: number }
+  | { type: 'PAY_PLAYERS', amount: number }
+  | { type: 'STREET_REPAIRS', houseCost: number, hotelCost: number }
+  | { type: 'GO_TO_JAIL' }
+  | { type: 'GET_OUT_OF_JAIL_FREE' }
+  | { type: 'MOVE_NEAREST', target: 'station' | 'utility' };
+
 export interface Player {
   id: PlayerId;
   name: string;
@@ -52,6 +73,27 @@ export interface Player {
   getOutOfJailFreeCards: number;
 }
 
+export interface AuctionState {
+  propertyId: string;
+  highestBid: number;
+  highestBidderId: PlayerId | null;
+  bidders: PlayerId[];
+  currentBidderIndex: number;
+  timeLeft?: number; // 5 seconds timer
+}
+
+export interface TradeSide {
+  money: number;
+  properties: PropertyId[];
+}
+
+export interface TradeOffer {
+  fromPlayerId: PlayerId;
+  toPlayerId: PlayerId;
+  offering: TradeSide;
+  requesting: TradeSide;
+}
+
 export interface GameState {
   players: Player[];
   currentPlayerId: PlayerId;
@@ -59,6 +101,15 @@ export interface GameState {
   dice: [number, number];
   doublesCount: number;
   gameStatus: 'waiting' | 'playing' | 'ended';
-  turnPhase: 'roll' | 'action' | 'end'; // e.g. waiting for roll, moving/acting, waiting to end turn
-  lastAction?: string; // Log description
+  turnPhase: 'roll' | 'action' | 'card' | 'end' | 'auction' | 'trade' | 'ended'; 
+  lastAction?: string; 
+  chanceDeck: Card[];
+  communityChestDeck: Card[];
+  activeCard?: Card;
+  auction?: AuctionState;
+  activeTrade?: TradeOffer;
+  winnerId?: PlayerId;
+  lastMoveType?: 'forward' | 'backward' | 'jail';
+  jailSource?: number;
 }
+

@@ -1,0 +1,92 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 600px;
+    max-width: 90vw;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-2xl);
+}
+
+.tradeView, .tradeEditor {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.side {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.propList {
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.prop {
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.prop:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.selected {
+    border: 2px solid var(--accent-gold);
+    background: rgba(251, 191, 36, 0.2);
+}
+
+.arrow {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.footer button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.accept { background: #27ae60; color: white; }
+.reject { background: #e74c3c; color: white; }
+.cancel { background: #7f8c8d; color: white; }
+.propose { background: var(--accent-primary); color: white; }

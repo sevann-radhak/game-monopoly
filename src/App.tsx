@@ -2,14 +2,34 @@ import { useReducer, useState, useEffect } from 'react';
 import { Board } from './components/Board/Board';
 import { GameControls } from './components/Controls/GameControls';
 import { PlayerDashboard } from './components/Dashboard/PlayerDashboard';
-import { createInitialState, gameReducer } from './engine/GameEngine';
+import { createInitialState, gameReducer, ACTION_TYPES } from './engine/GameEngine';
+import { CardModal } from './components/Modals/CardModal';
+import { AuctionModal } from './components/Auction/AuctionModal';
+import { TradeModal } from './components/Modals/TradeModal';
+import { VictoryModal } from './components/Modals/VictoryModal';
 import './index.css';
+
 
 function App() {
   const [gameState, dispatch] = useReducer(gameReducer, createInitialState(['Player 1', 'Player 2']));
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isRolling, setIsRolling] = useState(false);
+  const [displayDice, setDisplayDice] = useState<[number, number]>([1, 1]);
   const [focusedPropertyId, setFocusedPropertyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isRolling) {
+      const interval = setInterval(() => {
+        setDisplayDice([
+          Math.floor(Math.random() * 6) + 1,
+          Math.floor(Math.random() * 6) + 1
+        ]);
+      }, 100);
+      return () => clearInterval(interval);
+    } else {
+      setDisplayDice(gameState.dice);
+    }
+  }, [isRolling, gameState.dice]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -24,6 +44,7 @@ function App() {
       <Board 
         gameState={gameState} 
         isRolling={isRolling}
+        displayDice={displayDice}
         focusedPropertyId={focusedPropertyId}
       />
       <GameControls 
@@ -39,7 +60,33 @@ function App() {
         dispatch={dispatch}
         onFocusProperty={(id) => setFocusedPropertyId(id)}
       />
+
+      {gameState.turnPhase === 'card' && gameState.activeCard && (
+        <CardModal 
+          card={gameState.activeCard} 
+          onConfirm={() => dispatch({ type: ACTION_TYPES.APPLY_CARD })} 
+        />
+      )}
+
+      {gameState.turnPhase === 'auction' && (
+        <AuctionModal 
+          gameState={gameState} 
+          dispatch={dispatch} 
+        />
+      )}
+
+      {(gameState.turnPhase === 'trade' || gameState.activeTrade) && (
+        <TradeModal 
+          gameState={gameState} 
+          dispatch={dispatch} 
+        />
+      )}
+
+      {gameState.gameStatus === 'ended' && (
+        <VictoryModal gameState={gameState} />
+      )}
     </div>
+
   );
 }
 

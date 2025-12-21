@@ -87,10 +87,22 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body[data-view="lobby"] {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+body[data-view="game"] {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* For board game feel */
+  overflow: hidden;
 }
 
 /* Reset basics */

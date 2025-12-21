@@ -10,26 +10,53 @@ interface BoardSpaceProps {
   isFocused?: boolean;
   gridRow?: number;
   gridColumn?: number;
+  playerIndexMap?: Map<string, number>;
 }
 
-export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, players, isFocused, gridRow, gridColumn }) => {
+export const BoardSpace: React.FC<BoardSpaceProps> = ({ 
+  space, 
+  className, 
+  players, 
+  isFocused, 
+  gridRow, 
+  gridColumn,
+  playerIndexMap 
+}) => {
   const isCorner = space.type === SpaceType.CORNER;
   const isProperty = space.type === SpaceType.PROPERTY;
   
-  // Use a map or logic to get the owner's color if needed
-  // For now we will assume the owner ID can let us look up something, 
-  // but players are not passed here. 
-  // Ideally, 'Space' object would have 'ownerColor' populated, or we look it up.
-  // But wait, the user wants "marked... so others see it belongs".
-  // The 'Space' interface has 'owner' (string).
-  // We can just use a generic 'owned' border or try to pass player colors map?
-  // Let's rely on a CSS class 'owned' for now, and maybe dynamic color later if we have it.
-  // Actually, we can assume P1=Red, P2=Blue as per GameEngine default unless changed.
-  // Let's map owner ID to color simply here for now:
+  const getOwnerIndex = (ownerId?: string): number | null => {
+    if (!ownerId) return null;
+    if (playerIndexMap) {
+      return playerIndexMap.get(ownerId) ?? null;
+    }
+    if (ownerId.startsWith('p') || ownerId.startsWith('player_')) {
+      const match = ownerId.match(/p(\d+)/) || ownerId.match(/player_\d+_(\d+)_/);
+      if (match) {
+        return parseInt(match[1], 10) - 1;
+      }
+    }
+    return null;
+  };
+
   const getOwnerColor = (ownerId?: string) => {
-      if (ownerId === 'p1') return 'red';
-      if (ownerId === 'p2') return 'blue';
-      return 'gold';
+    if (!ownerId) return null;
+    const index = getOwnerIndex(ownerId);
+    if (index === null) return 'gold';
+    const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'];
+    return colors[index % colors.length];
+  };
+
+  const getOwnerLabel = (ownerId?: string): string => {
+    if (!ownerId) return '';
+    const index = getOwnerIndex(ownerId);
+    if (index === null) {
+      if (ownerId.startsWith('p')) {
+        return ownerId.toUpperCase();
+      }
+      return 'P?';
+    }
+    return `P${index + 1}`;
   };
 
   const ownerColor = space.owner ? getOwnerColor(space.owner) : null;
@@ -71,9 +98,8 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({ space, className, player
 
             {space.owner && (
                 <div className={styles.ownerMarker} title={`Owned by ${space.owner}`}>
-
                    <div className={styles.ownerInitial}>
-                       {space.owner === 'p1' ? 'P1' : 'P2'}
+                       {getOwnerLabel(space.owner)}
                    </div>
                 </div>
             )}

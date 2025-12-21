@@ -52,6 +52,8 @@ export type GameAction =
   | { type: typeof ACTION_TYPES.CANCEL_TRADE };
 
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS, shuffleDeck } from './cards';
+import type { LobbyConfig } from '../types';
+import { initializeGameFromLobby } from '../services/game/GameInitializer';
 
 export const createInitialState = (playerConfigs: { name: string, type: 'human' | 'bot' }[]): GameState => {
   const players: Player[] = playerConfigs.map((config, index) => ({
@@ -80,6 +82,14 @@ export const createInitialState = (playerConfigs: { name: string, type: 'human' 
     communityChestDeck: shuffleDeck(COMMUNITY_CHEST_CARDS),
   };
 };
+
+export function createInitialStateFromLobby(
+  lobbyConfig: LobbyConfig,
+  turnOrder: string[]
+): GameState {
+  const { gameState } = initializeGameFromLobby(lobbyConfig, turnOrder);
+  return gameState;
+}
 
 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
@@ -685,9 +695,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
                     break;
                 }
                 case 'PAY_PLAYERS': {
+                    const otherPlayersCount = newPlayers.filter(p => p.id !== player.id).length;
+                    const totalAmount = effect.amount * otherPlayersCount;
+                    pMoney -= totalAmount;
+                    
                     newPlayers = newPlayers.map(p => {
                         if (p.id === player.id) return p;
-                        pMoney -= effect.amount;
                         return { ...p, money: p.money + effect.amount };
                     });
                     break;

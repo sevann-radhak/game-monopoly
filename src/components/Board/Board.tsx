@@ -14,6 +14,13 @@ interface BoardProps {
 }
 
 export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice, focusedPropertyId }) => {
+  const playerIndexMap = React.useMemo(() => {
+    const map = new Map<string, number>();
+    gameState.players.forEach((player, index) => {
+      map.set(player.id, index);
+    });
+    return map;
+  }, [gameState.players]);
   const [rotation, setRotation] = React.useState({ x: 25, z: 0 }); // Tilt X slightly, rotate Z
 
   const [zoom, setZoom] = React.useState(1);
@@ -157,6 +164,7 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice,
                 isFocused={focusedPropertyId === space.id}
                 gridRow={gridStyle.gridRow}
                 gridColumn={gridStyle.gridColumn}
+                playerIndexMap={playerIndexMap}
              />
            );
         })}

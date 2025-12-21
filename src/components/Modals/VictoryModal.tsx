@@ -4,9 +4,13 @@ import styles from './VictoryModal.module.css';
 
 interface VictoryModalProps {
   gameState: GameState;
+  onReturnToLobby?: () => void;
 }
 
-export const VictoryModal: React.FC<VictoryModalProps> = ({ gameState }) => {
+export const VictoryModal: React.FC<VictoryModalProps> = ({
+  gameState,
+  onReturnToLobby,
+}) => {
   const winner = gameState.players.find(p => p.id === gameState.winnerId);
 
   if (!winner) return null;
@@ -38,8 +42,17 @@ export const VictoryModal: React.FC<VictoryModalProps> = ({ gameState }) => {
           </div>
         </div>
 
-        <button className={styles.restartBtn} onClick={() => window.location.reload()}>
-          New Game
+        <button
+          className={styles.restartBtn}
+          onClick={() => {
+            if (onReturnToLobby) {
+              onReturnToLobby();
+            } else {
+              window.location.reload();
+            }
+          }}
+        >
+          {onReturnToLobby ? 'Return to Lobby' : 'New Game'}
         </button>
       </div>
     </div>

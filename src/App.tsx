@@ -10,12 +10,21 @@ import { VictoryModal } from './components/Modals/VictoryModal';
 import './index.css';
 
 
+import { useGameLoop } from './hooks/useGameLoop';
+
 function App() {
-  const [gameState, dispatch] = useReducer(gameReducer, createInitialState(['Player 1', 'Player 2']));
+  const [gameState, dispatch] = useReducer(gameReducer, createInitialState([
+      { name: 'Human Player', type: 'human' },
+      { name: 'Bot AI', type: 'bot' }
+  ]));
+  
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isRolling, setIsRolling] = useState(false);
   const [displayDice, setDisplayDice] = useState<[number, number]>([1, 1]);
   const [focusedPropertyId, setFocusedPropertyId] = useState<string | null>(null);
+
+  // Attach the Game Loop
+  useGameLoop(gameState, dispatch, setIsRolling);
 
   useEffect(() => {
     if (isRolling) {

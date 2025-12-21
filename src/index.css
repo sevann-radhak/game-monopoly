@@ -28,10 +28,12 @@
   --color-dark-blue: #0072bb;
   --color-station: #1a1a1a;
   --color-utility: #f2f2f2;
+  --color-none: #888888;
 
   /* Board specific */
   --board-bg: #0f3460;
   --board-center-bg: rgba(15, 52, 96, 0.5);
+  --bg-tertiary: #0f1419;
 
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;

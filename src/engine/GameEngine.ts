@@ -53,10 +53,11 @@ export type GameAction =
 
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS, shuffleDeck } from './cards';
 
-export const createInitialState = (playerNames: string[]): GameState => {
-  const players: Player[] = playerNames.map((name, index) => ({
+export const createInitialState = (playerConfigs: { name: string, type: 'human' | 'bot' }[]): GameState => {
+  const players: Player[] = playerConfigs.map((config, index) => ({
     id: `p${index + 1}`,
-    name,
+    name: config.name,
+    type: config.type,
     color: ['red', 'blue', 'green', 'yellow'][index] || 'gray',
     money: 1500,
     position: 0,
@@ -973,7 +974,11 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
        if (state.turnPhase === 'roll') return state; // Can't skip roll
 
         if (isDouble(state.dice) && state.doublesCount > 0 && !currentPlayer.isInJail) {
-            return state; 
+             return {
+                 ...state,
+                 turnPhase: 'roll',
+                 lastAction: `${currentPlayer.name} rolled doubles! Roll again.`
+             };
         }
 
        const currentIndex = state.players.findIndex(p => p.id === state.currentPlayerId);

@@ -64,6 +64,7 @@ export type CardEffect =
 export interface Player {
   id: PlayerId;
   name: string;
+  type: 'human' | 'bot'; // Agent Type
   color: string; // Token color
   money: number;
   position: number;

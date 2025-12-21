@@ -36,6 +36,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
   if (!currentPlayer) return null;
 
   const isCardPhase = gameState.turnPhase === 'card';
+  const isBotTurn = currentPlayer.type === 'bot';
 
   return (
     <div className={styles.controlsContainer}>
@@ -83,9 +84,9 @@ export const GameControls: React.FC<GameControlsProps> = ({
                     <div className={styles.propertyActions}>
                       <button 
                           className={styles.button}
-                          disabled={!canAfford || isCardPhase}
-                          style={{ backgroundColor: (canAfford && !isCardPhase) ? 'var(--accent-gold)' : 'var(--bg-secondary)', marginBottom: '0.5rem' }}
-                          onClick={() => canAfford && !isCardPhase && dispatch({ type: ACTION_TYPES.BUY_PROPERTY })}
+                          disabled={isBotTurn || !canAfford || isCardPhase}
+                          style={{ backgroundColor: (canAfford && !isCardPhase && !isBotTurn) ? 'var(--accent-gold)' : 'var(--bg-secondary)', marginBottom: '0.5rem' }}
+                          onClick={() => !isBotTurn && canAfford && !isCardPhase && dispatch({ type: ACTION_TYPES.BUY_PROPERTY })}
                       >
                           {canAfford 
                               ? `Buy ${currentSpace.name} ($${currentSpace.price})` 
@@ -93,8 +94,8 @@ export const GameControls: React.FC<GameControlsProps> = ({
                       </button>
                       <button 
                           className={styles.auctionButton}
-                          disabled={isCardPhase}
-                          onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.DECLINE_PURCHASE })}
+                          disabled={isBotTurn || isCardPhase}
+                          onClick={() => !isBotTurn && !isCardPhase && dispatch({ type: ACTION_TYPES.DECLINE_PURCHASE })}
                       >
                           Decline & Auction
                       </button>
@@ -109,16 +110,16 @@ export const GameControls: React.FC<GameControlsProps> = ({
           <>
             <button 
               className={styles.button}
-              disabled={currentPlayer.money < 50 || isRolling || isCardPhase}
-              onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.PAY_JAIL_FINE })}
+              disabled={isBotTurn || currentPlayer.money < 50 || isRolling || isCardPhase}
+              onClick={() => !isBotTurn && !isCardPhase && dispatch({ type: ACTION_TYPES.PAY_JAIL_FINE })}
             >
               Pay $50 Fine
             </button>
             {currentPlayer.getOutOfJailFreeCards > 0 && (
               <button 
                 className={styles.button}
-                disabled={isRolling || isCardPhase}
-                onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.USE_JAIL_CARD })}
+                disabled={isBotTurn || isRolling || isCardPhase}
+                onClick={() => !isBotTurn && !isCardPhase && dispatch({ type: ACTION_TYPES.USE_JAIL_CARD })}
               >
                 Use Get Out of Jail Free Card
               </button>
@@ -128,8 +129,8 @@ export const GameControls: React.FC<GameControlsProps> = ({
 
         <button 
           className={styles.button}
-          disabled={((gameState.turnPhase !== 'roll' && !(gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail)) || isRolling || isCardPhase)}
-          onClick={() => !isCardPhase && handleRoll()}
+          disabled={(isBotTurn || (gameState.turnPhase !== 'roll' && !(gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail)) || isRolling || isCardPhase)}
+          onClick={() => !isBotTurn && !isCardPhase && handleRoll()}
         >
           {isRolling ? 'Rolling...' : (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail ? 'Roll Again' : (currentPlayer.isInJail ? 'Try for Doubles' : 'Roll Dice'))}
         </button>
@@ -137,21 +138,22 @@ export const GameControls: React.FC<GameControlsProps> = ({
         <button 
           className={styles.button}
           disabled={
+            isBotTurn ||
             isCardPhase ||
             gameState.turnPhase === 'roll' || 
             gameState.turnPhase === 'auction' ||
             (gameState.dice[0] === gameState.dice[1] && gameState.dice[0] !== 0 && !currentPlayer.isInJail) ||
             (gameState.turnPhase === 'action' && !!gameState.board.find(s => s.position === currentPlayer.position && s.type === 'property' && !s.owner))
           }
-          onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.END_TURN })}
+          onClick={() => !isBotTurn && !isCardPhase && dispatch({ type: ACTION_TYPES.END_TURN })}
         >
           End Turn
         </button>
 
         <button 
           className={styles.button}
-          disabled={isCardPhase}
-          onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.SETUP_TRADE })}
+          disabled={isBotTurn || isCardPhase}
+          onClick={() => !isBotTurn && !isCardPhase && dispatch({ type: ACTION_TYPES.SETUP_TRADE })}
         >
           Propose Trade
         </button>
@@ -160,8 +162,8 @@ export const GameControls: React.FC<GameControlsProps> = ({
         {currentPlayer.money < 0 && (
           <button 
             className={`${styles.button} ${styles.bankruptcyButton}`}
-            disabled={isCardPhase}
-            onClick={() => !isCardPhase && dispatch({ type: ACTION_TYPES.DECLARE_BANKRUPTCY })}
+            disabled={isBotTurn || isCardPhase}
+            onClick={() => !isBotTurn && !isCardPhase && dispatch({ type: ACTION_TYPES.DECLARE_BANKRUPTCY })}
           >
             Declare Bankruptcy
           </button>

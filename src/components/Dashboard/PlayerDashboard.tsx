@@ -75,6 +75,8 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
                         const isBlocked = gameState.turnPhase === 'card' || gameState.turnPhase === 'auction' || gameState.turnPhase === 'trade';
                         const showActions = isCurrentPlayerTurn(player.id) && !isBlocked;
 
+                        const owner = prop.owner ? gameState.players.find(p => p.id === prop.owner) : null;
+                        
                         return (
                             <PropertyCard 
                                 key={pid} 
@@ -89,6 +91,7 @@ export const PlayerDashboard: React.FC<DashboardProps> = ({ gameState, dispatch,
                                 onMortgage={() => dispatch({ type: ACTION_TYPES.MORTGAGE_PROPERTY, propertyId: pid })}
                                 canUnmortgage={showActions && unmortgageCheck.canUnmortgage}
                                 onUnmortgage={() => dispatch({ type: ACTION_TYPES.UNMORTGAGE_PROPERTY, propertyId: pid })}
+                                ownerColor={owner?.color}
                             />
                         );
                       })

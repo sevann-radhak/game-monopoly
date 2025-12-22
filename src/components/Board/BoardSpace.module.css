@@ -41,11 +41,12 @@
     position: absolute;
     top: -5px;
     right: -5px;
-    width: 20px;
-    height: 20px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 4px;
     background: var(--owner-border-color, gold); /* Fallback */
     border: 2px solid white;
-    border-radius: 50%;
+    border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     z-index: 10;
     display: flex;
@@ -54,9 +55,11 @@
 }
 
 .ownerInitial {
-    font-size: 0.5rem;
+    font-size: 0.55rem;
     color: white;
     font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .content {

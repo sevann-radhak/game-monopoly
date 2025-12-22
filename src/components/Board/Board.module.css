@@ -8,6 +8,7 @@
     justify-content: center;
     align-items: center;
     cursor: grab;
+    position: relative;
 }
 
 .scene:active {
@@ -88,8 +89,8 @@
 }
 
 .playerToken {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     /* 3D Token look */
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), transparent), currentColor;
@@ -104,7 +105,15 @@
     z-index: 1000;
     pointer-events: none; /* Let clicks pass through to board */
     
-    /* Dimensions relative to board */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tokenEmoji {
+    font-size: 18px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
 
 /* Removed playersTokenContainer as tokens are now direct children of board */

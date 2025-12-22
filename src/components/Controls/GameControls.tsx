@@ -49,14 +49,16 @@ export const GameControls: React.FC<GameControlsProps> = ({
       </div>
 
       <div className={styles.actions}>
-        <button 
-           className={styles.themeToggle} 
-           onClick={toggleTheme}
-           disabled={isCardPhase}
-           title={`Switch to ${currentTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
-        >
-          {currentTheme === 'dark' ? '☀️' : '🌙'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.25rem' }}>
+          <button 
+             className={styles.themeToggle} 
+             onClick={toggleTheme}
+             disabled={isCardPhase}
+             title={`Switch to ${currentTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          >
+            {currentTheme === 'dark' ? '☀️' : '🌙'}
+          </button>
+        </div>
 
 
 

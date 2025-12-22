@@ -66,6 +66,7 @@ export interface Player {
   name: string;
   type: 'human' | 'bot'; // Agent Type
   color: string; // Token color
+  token: TokenId; // Token identifier
   money: number;
   position: number;
   isInJail: boolean;
@@ -115,5 +116,6 @@ export interface GameState {
 }
 
 export * from './tokens';
+export type { TokenId } from './tokens';
 export * from './lobby';
 

@@ -11,6 +11,7 @@ interface BoardSpaceProps {
   gridRow?: number;
   gridColumn?: number;
   playerIndexMap?: Map<string, number>;
+  playersList?: Array<{ id: string; color: string; name: string }>;
 }
 
 export const BoardSpace: React.FC<BoardSpaceProps> = ({ 
@@ -20,7 +21,8 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({
   isFocused, 
   gridRow, 
   gridColumn,
-  playerIndexMap 
+  playerIndexMap,
+  playersList
 }) => {
   const isCorner = space.type === SpaceType.CORNER;
   const isProperty = space.type === SpaceType.PROPERTY;
@@ -41,6 +43,10 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({
 
   const getOwnerColor = (ownerId?: string) => {
     if (!ownerId) return null;
+    if (playersList) {
+      const owner = playersList.find(p => p.id === ownerId);
+      if (owner) return owner.color;
+    }
     const index = getOwnerIndex(ownerId);
     if (index === null) return 'gold';
     const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'];
@@ -49,6 +55,22 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({
 
   const getOwnerLabel = (ownerId?: string): string => {
     if (!ownerId) return '';
+    
+    if (playersList) {
+      const owner = playersList.find(p => p.id === ownerId);
+      if (owner && owner.name) {
+        const name = owner.name.trim();
+        if (name.length <= 3) {
+          return name.toUpperCase();
+        }
+        const words = name.split(/\s+/);
+        if (words.length > 1) {
+          return words.map(w => w[0]).join('').toUpperCase().slice(0, 3);
+        }
+        return name.slice(0, 3).toUpperCase();
+      }
+    }
+    
     const index = getOwnerIndex(ownerId);
     if (index === null) {
       if (ownerId.startsWith('p')) {
@@ -96,13 +118,17 @@ export const BoardSpace: React.FC<BoardSpaceProps> = ({
                 </div>
             )}
 
-            {space.owner && (
-                <div className={styles.ownerMarker} title={`Owned by ${space.owner}`}>
+            {space.owner && (() => {
+              const owner = playersList?.find(p => p.id === space.owner);
+              const ownerName = owner?.name || space.owner;
+              return (
+                <div className={styles.ownerMarker} title={`Owned by ${ownerName}`}>
                    <div className={styles.ownerInitial}>
                        {getOwnerLabel(space.owner)}
                    </div>
                 </div>
-            )}
+              );
+            })()}
         </div>
       )}
 

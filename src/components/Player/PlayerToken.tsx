@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../Board/Board.module.css';
+import type { TokenId } from '../../types';
+import { getTokenById } from '../../types/tokens';
 
 interface PlayerTokenProps {
   name: string;
   color: string;
+  token: TokenId;
   position: number; // The target position from game state
   index: number; // Index for offset
   getGridStyle: (space: { position: number, id?: string }) => { gridRow: number; gridColumn: number };
@@ -14,12 +17,26 @@ interface PlayerTokenProps {
 export const PlayerToken: React.FC<PlayerTokenProps> = ({
   name,
   color,
+  token,
   position,
   index,
   getGridStyle,
   moveType = 'forward',
   jailSource,
 }) => {
+  const getTokenEmoji = (tokenId: TokenId): string => {
+    const emojiMap: Record<TokenId, string> = {
+      racecar: '🏎️',
+      top_hat: '🎩',
+      thimble: '🧵',
+      boot: '👢',
+      wheelbarrow: '🛒',
+      battleship: '🚢',
+      dog: '🐕',
+      cat: '🐱',
+    };
+    return emojiMap[tokenId] || '🎯';
+  };
   const [visualPosition, setVisualPosition] = useState(position);
   const isMoving = useRef(false);
   const queue = useRef<number[]>([]);
@@ -201,6 +218,8 @@ export const PlayerToken: React.FC<PlayerTokenProps> = ({
         transition: 'top 0.15s ease-in-out, left 0.15s ease-in-out', 
       }}
       title={name}
-    />
+    >
+      <span className={styles.tokenEmoji}>{getTokenEmoji(token)}</span>
+    </div>
   );
 };

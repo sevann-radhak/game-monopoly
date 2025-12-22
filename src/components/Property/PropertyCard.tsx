@@ -16,6 +16,7 @@ interface PropertyCardProps {
   canUnmortgage?: boolean;
   onUnmortgage?: () => void;
   isMonopoly?: boolean;
+  ownerColor?: string;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({ 
@@ -31,11 +32,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     onMortgage,
     canUnmortgage,
     onUnmortgage,
-    isMonopoly 
+    isMonopoly,
+    ownerColor
 }) => {
   const colorVar = property.color 
     ? `var(--color-${property.color.replace('_', '-')})` 
     : 'gray';
+
+  const borderColor = ownerColor || 'transparent';
 
   return (
     <div 
@@ -43,6 +47,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         onClick={onClick}
         role="button"
         tabIndex={0}
+        style={{ borderColor: borderColor, borderWidth: ownerColor ? '3px' : '1px' }}
     >
       <div className={styles.header} style={{ backgroundColor: colorVar }}>
         <div className={styles.title}>TITLE DEED</div>

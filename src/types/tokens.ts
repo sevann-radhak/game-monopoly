@@ -26,3 +26,4 @@ export const getTokenById = (id: TokenId): Token | undefined => {
 export const getAvailableTokens = (usedTokenIds: TokenId[]): Token[] => {
   return ALL_TOKENS.filter(token => !usedTokenIds.includes(token.id));
 };
+

@@ -24,7 +24,9 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice,
   const [rotation, setRotation] = React.useState({ x: 25, z: 0 }); // Tilt X slightly, rotate Z
 
   const [zoom, setZoom] = React.useState(1);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = React.useState(false);
+  const [isPanning, setIsPanning] = React.useState(false);
   const lastMousePos = React.useRef({ x: 0, y: 0 });
 
   // Debug: Log initial player positions on mount
@@ -36,32 +38,63 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice,
   }, []); // Only on mount
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Only drag if clicking background, not interactive elements (chips, buttons)
-    // For now simple check
-    setIsDragging(true);
+    if (e.shiftKey || e.button === 1 || e.button === 2) {
+      e.preventDefault();
+      setIsPanning(true);
+    } else if (e.button === 0) {
+      setIsDragging(true);
+    }
     lastMousePos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    
-    const deltaX = e.clientX - lastMousePos.current.x;
-    const deltaY = e.clientY - lastMousePos.current.y;
-    
-    setRotation(prev => ({
+    if (isPanning) {
+      const deltaX = e.clientX - lastMousePos.current.x;
+      const deltaY = e.clientY - lastMousePos.current.y;
+      
+      setPan(prev => ({
+        x: prev.x + deltaX / zoom,
+        y: prev.y + deltaY / zoom
+      }));
+    } else if (isDragging) {
+      const deltaX = e.clientX - lastMousePos.current.x;
+      const deltaY = e.clientY - lastMousePos.current.y;
+      
+      setRotation(prev => ({
         x: Math.min(Math.max(prev.x - deltaY * 0.5, 0), 60), // Clamp tilt 0-60
         z: prev.z + deltaX * 0.5
-    }));
+      }));
+    }
     
     lastMousePos.current = { x: e.clientX, y: e.clientY };
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setIsPanning(false);
   };
 
   const handleWheel = (e: React.WheelEvent) => {
-    setZoom(prev => Math.min(Math.max(prev - e.deltaY * 0.001, 0.5), 2));
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    const zoomFactor = e.deltaY * -0.001;
+    const newZoom = Math.min(Math.max(zoom + zoomFactor, 0.5), 2);
+    
+    if (newZoom !== zoom) {
+      const zoomRatio = newZoom / zoom;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      setPan(prev => ({
+        x: prev.x - (mouseX - centerX) * (1 - zoomRatio) / newZoom,
+        y: prev.y - (mouseY - centerY) * (1 - zoomRatio) / newZoom
+      }));
+      
+      setZoom(newZoom);
+    }
   };
 
   // We need to map linear 0-39 index to grid placement
@@ -131,11 +164,13 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice,
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
+        onContextMenu={(e) => e.preventDefault()}
     >
       <div 
         className={styles.boardContainer}
         style={{
-            transform: `rotateX(${rotation.x}deg) rotateZ(${rotation.z}deg) scale(${zoom})`
+            transform: `translate(${pan.x}px, ${pan.y}px) rotateX(${rotation.x}deg) rotateZ(${rotation.z}deg) scale(${zoom})`,
+            transformOrigin: 'center center'
         }}
       >
       <div className={styles.board}>
@@ -165,6 +200,7 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice,
                 gridRow={gridStyle.gridRow}
                 gridColumn={gridStyle.gridColumn}
                 playerIndexMap={playerIndexMap}
+                playersList={gameState.players.map(p => ({ id: p.id, color: p.color, name: p.name }))}
              />
            );
         })}
@@ -175,6 +211,7 @@ export const Board: React.FC<BoardProps> = ({ gameState, isRolling, displayDice,
             key={player.id}
             name={player.name}
             color={player.color}
+            token={player.token}
             position={player.position}
             index={index}
             getGridStyle={getGridStyle}

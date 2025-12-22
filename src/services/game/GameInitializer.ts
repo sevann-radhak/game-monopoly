@@ -1,4 +1,4 @@
-import type { LobbyConfig, PlayerSlot, Player, GameState } from '../../types';
+import type { LobbyConfig, PlayerSlot, Player, GameState, TokenId } from '../../types';
 import { BOARD_CONFIG } from '../../engine/constants';
 import { CHANCE_CARDS, COMMUNITY_CHEST_CARDS, shuffleDeck } from '../../engine/cards';
 
@@ -90,6 +90,7 @@ export function mapPlayerSlotsToPlayers(
       name: slot.name,
       type: slot.type,
       color: slot.color,
+      token: slot.token,
       money: startingMoney,
       position: 0,
       isInJail: false,
